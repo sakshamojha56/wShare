@@ -60,7 +60,11 @@ const io = new Server(server, {
   maxHttpBufferSize: 1e5, // 100 KB — signaling messages only, never file bytes
 });
 
-// ─── Health check endpoint ──────────────────────────────────────────────────
+// ─── Health check endpoints ─────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.send('wShare Signaling Server is running smoothly! 🚀');
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', rooms: 'active', timestamp: new Date().toISOString() });
 });
