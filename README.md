@@ -6,13 +6,7 @@
 ---
 
 ## 🚀 Live Demo
-
-| Service | URL |
-|---|---|
-| Frontend | `https://p2p-share.vercel.app` *(deploy to Vercel)* |
-| Signaling Server | `https://p2p-share-signal.onrender.com` *(deploy to Render)* |
-
----
+      https://w-share.vercel.app/
 
 ## ✨ Features
 
