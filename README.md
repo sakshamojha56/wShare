@@ -26,6 +26,19 @@ wShare is built around privacy-preserving transfer: the server coordinates signa
 
 The client is a Vite React application with WebRTC hooks and transfer utilities. The server is a compact Express and Socket.IO signaling service that manages rooms without handling file payloads.
 
+## Architecture Diagram
+
+```mermaid
+flowchart LR
+  Sender["Sender Browser"] --> Chunker["Chunking and Encryption"]
+  Chunker --> WebRTC["WebRTC Data Channel"]
+  Receiver["Receiver Browser"] --> WebRTC
+  Sender --> Signaling["Socket.IO Signaling Server"]
+  Receiver --> Signaling
+  WebRTC --> Assembler["Receiver Assembly"]
+  Assembler --> Download["Recovered File"]
+```
+
 ## Technology Stack
 
 - React and Vite for the browser client.
