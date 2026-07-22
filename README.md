@@ -1,159 +1,60 @@
-# ⚡ wShare
+# wShare
 
-> **Direct, encrypted, browser-to-browser file transfer using WebRTC.**  
-> No file data ever touches a server. Transfer happens peer-to-peer, secured with AES-256-GCM.
+<p align="center">
+<img alt="React" src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge" />
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge" />
+  <img alt="WebRTC" src="https://img.shields.io/badge/WebRTC-333333?style=for-the-badge" />
+  <img alt="Socket.IO" src="https://img.shields.io/badge/Socket.IO-010101?style=for-the-badge" />
+  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge" />
+  <img alt="Express" src="https://img.shields.io/badge/Express-000000?style=for-the-badge" />
+</p>
 
----
+<p align="center">
+  <strong>A direct peer-to-peer file sharing application that transfers encrypted files between browsers without routing payloads through a server.</strong>
+</p>
 
-## 🚀 Live Demo
-      https://w-share.vercel.app/
+wShare is built around privacy-preserving transfer: the server coordinates signaling, while file data moves directly between peers over WebRTC. The client manages chunking, assembly, progress tracking, QR/link sharing, and connection state.
 
-## ✨ Features
+## Core Capabilities
 
-### Core MVP
-- 📁 **Drag-and-drop** file zone with visual feedback and file type icons
-- 🔗 **Unique share room link** — send to recipient, transfer starts instantly
-- 🌐 **Pure P2P transfer** via WebRTC DataChannel — no server relay for file data
-- 🔐 **SHA-256 hash verification** — every transfer verified for integrity before download
-- 📊 **Real-time progress UI** — percentage, transfer speed (MB/s), ETA
-- ⚠️ **Graceful disconnect handling** — clean UI notification if peer drops mid-transfer
-- ⬇️ **Auto-download** — receiver's browser saves the file automatically
+- Creates sender and receiver flows for browser-to-browser file transfer.
+- Uses Socket.IO signaling to establish peer connections.
+- Chunks, encrypts, transfers, and reassembles files on the client side.
+- Displays connection, share-link, and transfer-progress states through reusable components.
 
-### Advanced (Brownie Features)
-- 🔒 **Zero-knowledge AES-256-GCM encryption** — key lives only in the URL hash (`#key=...`), never on the server
-- 💾 **Large file support (>500MB)** via Origin Private File System (OPFS) — chunks stream to disk, not RAM
-- 📱 **QR code sharing** — scan to receive on another device
-- 🔄 **Native Share API** — share link via OS native share sheet on mobile
+## Technical Architecture
 
----
+The client is a Vite React application with WebRTC hooks and transfer utilities. The server is a compact Express and Socket.IO signaling service that manages rooms without handling file payloads.
 
-## 🏗️ Architecture
+## Technology Stack
 
-```
-Browser A (Sender)              Signaling Server              Browser B (Receiver)
-      |  ─── create-room ──────────▶ |                              |
-      |  ◀── room-id ─────────────── |                              |
-      |                              | ◀── join-room ────────────── |
-      |  ◀── peer-connected ──────── |                              |
-      |  ─── offer ─────────────────▶ ──── offer ─────────────────▶ |
-      |  ◀── answer ─────────────── ◀──── answer ─────────────────  |
-      |  ◀═══════════ ICE negotiation ════════════════════════════▶ |
-      |                                                              |
-      |  ══════════ WebRTC DataChannel (direct P2P) ═══════════════ |
-      |     [AES-GCM encrypted 64KB chunks + SHA-256 hash]          |
-```
+- React and Vite for the browser client.
+- WebRTC data channels for direct file transfer.
+- Socket.IO and Express for signaling.
+- Client-side chunking, assembly, and cryptographic utilities.
+- QR code support for easy receiver onboarding.
 
-**Key principle:** The signaling server only relays WebRTC handshake messages (SDP offers/answers, ICE candidates). File bytes NEVER touch the server.
+## Repository Structure
 
----
+- `client/src/hooks/useWebRTC.js` - Peer connection and data-channel logic.
+- `client/src/hooks/useSignaling.js` - Socket signaling hook.
+- `client/src/utils/chunker.js` - File chunking utility.
+- `client/src/utils/assembler.js` - File reassembly utility.
+- `server/index.js` - Signaling server entry point.
+- `server/rooms.js` - Room state management.
 
-## 🛠️ Tech Stack
+## Getting Started
 
-| Layer | Technology |
-|---|---|
-| Frontend | React.js + Vite, CSS Custom Properties |
-| P2P | Native WebRTC API (RTCPeerConnection + RTCDataChannel) |
-| Signaling | Node.js + Express + Socket.io |
-| Encryption | Web Crypto API (AES-GCM 256-bit) |
-| Hashing | Web Crypto API (SHA-256) |
-| Large Files | Origin Private File System (OPFS) |
-
----
-
-## 📦 Local Development
-
-### Prerequisites
-- Node.js >= 18
-- npm >= 9
-
-### 1. Clone the repo
 ```bash
-git clone https://github.com/<your-username>/wShare.git
-cd wShare
+cd server && npm install
+cd ../client && npm install
 ```
 
-### 2. Start the Signaling Server
 ```bash
-cd server
-npm install
-npm run dev
-# ▶ Signaling server running on http://localhost:3001
+cd server && npm run dev
+cd client && npm run dev
 ```
 
-### 3. Start the React Frontend
-```bash
-cd client
-npm install
-npm run dev
-# ▶ Frontend running on http://localhost:5173
-```
+## Professional Context
 
-### 4. Test a transfer
-1. Open `http://localhost:5173` in **Browser Window A** (Sender)
-2. Drop a file — a share link is generated
-3. Open the generated link in **Browser Window B** (Receiver)
-4. Watch the transfer happen directly between the two windows!
-
----
-
-## 🚀 Deployment
-
-### Frontend → Vercel
-1. Connect your GitHub repo to Vercel
-2. Set **Root Directory** to `client/`
-3. Add environment variable: `VITE_SIGNALING_SERVER=https://your-render-url.onrender.com`
-4. Deploy
-
-### Signaling Server → Render
-1. Create a new **Web Service** on Render
-2. Set **Root Directory** to `server/`
-3. Build command: `npm install`
-4. Start command: `npm start`
-5. Copy the Render URL → paste into Vercel env var above
-
----
-
-## 📁 Project Structure
-
-```
-wShare/
-├── client/                  # React.js frontend
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── DropZone.jsx        # File drag-and-drop
-│   │   │   ├── ShareLink.jsx       # Room link + QR code
-│   │   │   ├── ConnectionStatus.jsx # Animated status badge
-│   │   │   ├── ProgressBar.jsx     # Transfer progress + speed
-│   │   │   ├── SenderView.jsx      # Sender page
-│   │   │   └── ReceiverView.jsx    # Receiver page
-│   │   ├── hooks/
-│   │   │   ├── useWebRTC.js        # WebRTC connection + DataChannel
-│   │   │   └── useSignaling.js     # Socket.io signaling
-│   │   └── utils/
-│   │       ├── crypto.js           # SHA-256 + AES-GCM
-│   │       ├── chunker.js          # File → 64KB chunks
-│   │       └── assembler.js        # Chunk reassembly + OPFS
-│   └── vite.config.js
-│
-└── server/                  # Node.js signaling server
-    ├── index.js             # Express + Socket.io
-    └── rooms.js             # In-memory room state
-```
-
----
-
-## 🔒 Security Model
-
-| Concern | Solution |
-|---|---|
-| File privacy | Files transfer P2P — never uploaded to any server |
-| Encryption | AES-256-GCM applied per-chunk before sending |
-| Key exchange | Key embedded in URL hash (`#key=...`) — HTTP never sends fragment to server |
-| Integrity | SHA-256 hash of entire file compared sender→receiver |
-| Signaling | Server only sees socket IDs and SDP/ICE messages |
-
----
-
-## 📄 License
-
-MIT — build freely, share widely.
+This project demonstrates real-time web engineering, browser networking, file-transfer architecture, and user-focused privacy design.
